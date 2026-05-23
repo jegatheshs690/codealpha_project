@@ -1,0 +1,813 @@
+<!-- ========================= -->
+<!--        index.html        -->
+<!-- ========================= -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Premium Image Gallery</title>
+
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+
+    /* ========================= */
+    /*         style.css         */
+    /* ========================= */
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      scroll-behavior:smooth;
+      font-family:'Poppins',sans-serif;
+    }
+
+    :root{
+      --bg:#f4f7ff;
+      --text:#111;
+      --card:rgba(255,255,255,0.25);
+      --border:rgba(255,255,255,0.18);
+      --shadow:0 8px 32px rgba(0,0,0,0.1);
+      --primary:#6c63ff;
+      --secondary:#8f94fb;
+    }
+
+    body.dark{
+      --bg:#0f172a;
+      --text:#fff;
+      --card:rgba(255,255,255,0.08);
+      --border:rgba(255,255,255,0.1);
+      --shadow:0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    body{
+      background:var(--bg);
+      color:var(--text);
+      transition:0.4s;
+      overflow-x:hidden;
+    }
+
+    /* NAVBAR */
+
+    nav{
+      width:100%;
+      position:fixed;
+      top:0;
+      left:0;
+      z-index:1000;
+      backdrop-filter:blur(12px);
+      background:rgba(255,255,255,0.1);
+      border-bottom:1px solid rgba(255,255,255,0.2);
+      padding:18px 8%;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+
+    nav h1{
+      font-size:28px;
+      background:linear-gradient(to right,#6c63ff,#ff6ec4);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+
+    .nav-right{
+      display:flex;
+      gap:15px;
+      align-items:center;
+    }
+
+    .dark-toggle{
+      padding:10px 16px;
+      border:none;
+      border-radius:30px;
+      cursor:pointer;
+      background:linear-gradient(45deg,#6c63ff,#8f94fb);
+      color:white;
+      font-weight:600;
+      transition:0.3s;
+    }
+
+    .dark-toggle:hover{
+      transform:scale(1.05);
+    }
+
+    /* HERO */
+
+    .hero{
+      height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+      padding:20px;
+      background:
+      linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.5)),
+      url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1974&auto=format&fit=crop');
+      background-size:cover;
+      background-position:center;
+      color:white;
+    }
+
+    .hero-content h2{
+      font-size:65px;
+      margin-bottom:20px;
+      animation:fadeDown 1s ease;
+    }
+
+    .hero-content p{
+      font-size:18px;
+      max-width:700px;
+      margin:auto;
+      line-height:1.8;
+      animation:fadeUp 1s ease;
+    }
+
+    @keyframes fadeDown{
+      from{
+        opacity:0;
+        transform:translateY(-40px);
+      }
+      to{
+        opacity:1;
+        transform:translateY(0);
+      }
+    }
+
+    @keyframes fadeUp{
+      from{
+        opacity:0;
+        transform:translateY(40px);
+      }
+      to{
+        opacity:1;
+        transform:translateY(0);
+      }
+    }
+
+    /* FILTER SECTION */
+
+    .controls{
+      width:90%;
+      margin:50px auto;
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:center;
+      gap:15px;
+    }
+
+    .search-box{
+      padding:14px 20px;
+      width:280px;
+      border:none;
+      border-radius:40px;
+      outline:none;
+      background:var(--card);
+      color:var(--text);
+      backdrop-filter:blur(10px);
+      border:1px solid var(--border);
+      box-shadow:var(--shadow);
+    }
+
+    .filter-btn{
+      padding:12px 22px;
+      border:none;
+      border-radius:30px;
+      cursor:pointer;
+      background:var(--card);
+      color:var(--text);
+      backdrop-filter:blur(10px);
+      border:1px solid var(--border);
+      transition:0.3s;
+      box-shadow:var(--shadow);
+    }
+
+    .filter-btn.active,
+    .filter-btn:hover{
+      background:linear-gradient(45deg,#6c63ff,#8f94fb);
+      color:white;
+      transform:translateY(-3px);
+    }
+
+    /* GALLERY */
+
+    .gallery{
+      width:90%;
+      margin:auto;
+      column-count:4;
+      column-gap:18px;
+    }
+
+    .card{
+      position:relative;
+      margin-bottom:18px;
+      overflow:hidden;
+      border-radius:20px;
+      cursor:pointer;
+      break-inside:avoid;
+      backdrop-filter:blur(10px);
+      background:var(--card);
+      border:1px solid var(--border);
+      box-shadow:var(--shadow);
+      transform:translateY(30px);
+      opacity:0;
+      transition:0.5s;
+    }
+
+    .card.show{
+      transform:translateY(0);
+      opacity:1;
+    }
+
+    .card img{
+      width:100%;
+      display:block;
+      transition:0.5s;
+    }
+
+    .card:hover img{
+      transform:scale(1.08);
+    }
+
+    .overlay{
+      position:absolute;
+      inset:0;
+      background:linear-gradient(to top,rgba(0,0,0,0.7),transparent);
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      padding:20px;
+      opacity:0;
+      transition:0.4s;
+    }
+
+    .card:hover .overlay{
+      opacity:1;
+    }
+
+    .overlay h3{
+      color:white;
+      font-size:18px;
+    }
+
+    .icons{
+      display:flex;
+      gap:12px;
+    }
+
+    .icons button{
+      border:none;
+      width:40px;
+      height:40px;
+      border-radius:50%;
+      cursor:pointer;
+      font-size:18px;
+      background:white;
+      transition:0.3s;
+    }
+
+    .icons button:hover{
+      transform:scale(1.1);
+    }
+
+    /* LIGHTBOX */
+
+    .lightbox{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.9);
+      display:none;
+      justify-content:center;
+      align-items:center;
+      z-index:2000;
+      flex-direction:column;
+    }
+
+    .lightbox.active{
+      display:flex;
+    }
+
+    .lightbox img{
+      max-width:80%;
+      max-height:80vh;
+      border-radius:20px;
+      animation:zoom 0.4s;
+    }
+
+    @keyframes zoom{
+      from{
+        transform:scale(0.8);
+        opacity:0;
+      }
+      to{
+        transform:scale(1);
+        opacity:1;
+      }
+    }
+
+    .lightbox-controls{
+      margin-top:20px;
+      display:flex;
+      gap:20px;
+      align-items:center;
+    }
+
+    .lightbox button{
+      border:none;
+      padding:12px 18px;
+      border-radius:50px;
+      cursor:pointer;
+      background:linear-gradient(45deg,#6c63ff,#8f94fb);
+      color:white;
+      font-weight:600;
+      transition:0.3s;
+    }
+
+    .lightbox button:hover{
+      transform:scale(1.08);
+    }
+
+    .counter{
+      color:white;
+      font-size:18px;
+    }
+
+    /* FOOTER */
+
+    footer{
+      margin-top:80px;
+      padding:40px;
+      text-align:center;
+      background:rgba(255,255,255,0.08);
+      backdrop-filter:blur(10px);
+    }
+
+    footer p{
+      opacity:0.8;
+    }
+
+    /* RESPONSIVE */
+
+    @media(max-width:1100px){
+      .gallery{
+        column-count:3;
+      }
+    }
+
+    @media(max-width:768px){
+
+      .hero-content h2{
+        font-size:42px;
+      }
+
+      .gallery{
+        column-count:2;
+      }
+    }
+
+    @media(max-width:500px){
+
+      .gallery{
+        column-count:1;
+      }
+
+      .hero-content h2{
+        font-size:32px;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+
+  <nav>
+    <h1>VisionGallery</h1>
+
+    <div class="nav-right">
+      <button class="dark-toggle">🌙 Dark Mode</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+
+  <section class="hero">
+    <div class="hero-content">
+      <h2>Premium Image Gallery</h2>
+      <p>
+        Explore beautiful high-quality images with smooth animations,
+        modern glassmorphism UI, responsive masonry layout,
+        dark mode, filters, and fullscreen preview.
+      </p>
+    </div>
+  </section>
+
+  <!-- CONTROLS -->
+
+  <section class="controls">
+
+    <input
+      type="text"
+      class="search-box"
+      placeholder="Search images..."
+    >
+
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="nature">Nature</button>
+    <button class="filter-btn" data-filter="cars">Cars</button>
+    <button class="filter-btn" data-filter="animals">Animals</button>
+    <button class="filter-btn" data-filter="technology">Technology</button>
+
+  </section>
+
+  <!-- GALLERY -->
+
+  <section class="gallery">
+
+    <!-- CARD -->
+
+    <div class="card nature">
+      <img loading="lazy"
+      src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200&auto=format&fit=crop">
+
+      <div class="overlay">
+        <h3>Nature</h3>
+
+        <div class="icons">
+          <button class="like">❤️</button>
+
+          <a download
+          href="https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200&auto=format&fit=crop">
+
+          <button>⬇️</button>
+
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD -->
+
+    <div class="card cars">
+      <img loading="lazy"
+      src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=1200&auto=format&fit=crop">
+
+      <div class="overlay">
+        <h3>Cars</h3>
+
+        <div class="icons">
+          <button class="like">❤️</button>
+
+          <a download
+          href="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=1200&auto=format&fit=crop">
+
+          <button>⬇️</button>
+
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD -->
+
+    <div class="card animals">
+      <img loading="lazy"
+      src="https://images.unsplash.com/photo-1517849845537-4d257902454a?q=80&w=1200&auto=format&fit=crop">
+
+      <div class="overlay">
+        <h3>Animals</h3>
+
+        <div class="icons">
+          <button class="like">❤️</button>
+
+          <a download
+          href="https://images.unsplash.com/photo-1517849845537-4d257902454a?q=80&w=1200&auto=format&fit=crop">
+
+          <button>⬇️</button>
+
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD -->
+
+    <div class="card technology">
+      <img loading="lazy"
+      src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop">
+
+      <div class="overlay">
+        <h3>Technology</h3>
+
+        <div class="icons">
+          <button class="like">❤️</button>
+
+          <a download
+          href="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop">
+
+          <button>⬇️</button>
+
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXTRA IMAGES -->
+
+    <div class="card nature">
+      <img loading="lazy"
+      src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=1200&auto=format&fit=crop">
+
+      <div class="overlay">
+        <h3>Forest</h3>
+      </div>
+    </div>
+
+    <div class="card cars">
+      <img loading="lazy"
+      src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1200&auto=format&fit=crop">
+
+      <div class="overlay">
+        <h3>Super Car</h3>
+      </div>
+    </div>
+
+    <div class="card animals">
+      <img loading="lazy"
+      src="https://images.unsplash.com/photo-1546182990-dffeafbe841d?q=80&w=1200&auto=format&fit=crop">
+
+      <div class="overlay">
+        <h3>Dog</h3>
+      </div>
+    </div>
+
+    <div class="card technology">
+      <img loading="lazy"
+      src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop">
+
+      <div class="overlay">
+        <h3>Tech</h3>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- LIGHTBOX -->
+
+  <div class="lightbox">
+
+    <img src="" id="lightbox-img">
+
+    <div class="lightbox-controls">
+
+      <button id="prev">⬅ Prev</button>
+
+      <span class="counter"></span>
+
+      <button id="next">Next ➡</button>
+
+      <button id="slide">▶ Slideshow</button>
+
+      <button id="close">✖ Close</button>
+
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+
+  <footer>
+    <p>
+      Designed with ❤️ using HTML, CSS & JavaScript
+    </p>
+  </footer>
+
+  <script>
+
+    /* ========================= */
+    /*        script.js          */
+    /* ========================= */
+
+    const cards = document.querySelectorAll(".card");
+    const filterBtns = document.querySelectorAll(".filter-btn");
+    const searchBox = document.querySelector(".search-box");
+
+    const lightbox = document.querySelector(".lightbox");
+    const lightboxImg = document.getElementById("lightbox-img");
+
+    const counter = document.querySelector(".counter");
+
+    const nextBtn = document.getElementById("next");
+    const prevBtn = document.getElementById("prev");
+    const closeBtn = document.getElementById("close");
+
+    const slideBtn = document.getElementById("slide");
+
+    const darkToggle = document.querySelector(".dark-toggle");
+
+    let currentIndex = 0;
+    let slideshow;
+
+    const images = Array.from(document.querySelectorAll(".card img"));
+
+    // SHOW CARDS ANIMATION
+
+    const observer = new IntersectionObserver(entries => {
+
+      entries.forEach(entry => {
+
+        if(entry.isIntersecting){
+          entry.target.classList.add("show");
+        }
+
+      });
+
+    });
+
+    cards.forEach(card => observer.observe(card));
+
+    // FILTER BUTTONS
+
+    filterBtns.forEach(btn => {
+
+      btn.addEventListener("click", () => {
+
+        filterBtns.forEach(b => b.classList.remove("active"));
+
+        btn.classList.add("active");
+
+        const filter = btn.dataset.filter;
+
+        cards.forEach(card => {
+
+          if(filter === "all" || card.classList.contains(filter)){
+            card.style.display = "block";
+          }
+          else{
+            card.style.display = "none";
+          }
+
+        });
+
+      });
+
+    });
+
+    // SEARCH FILTER
+
+    searchBox.addEventListener("keyup", () => {
+
+      const value = searchBox.value.toLowerCase();
+
+      cards.forEach(card => {
+
+        const text = card.innerText.toLowerCase();
+
+        if(text.includes(value)){
+          card.style.display = "block";
+        }
+        else{
+          card.style.display = "none";
+        }
+
+      });
+
+    });
+
+    // OPEN LIGHTBOX
+
+    images.forEach((img,index) => {
+
+      img.addEventListener("click", () => {
+
+        currentIndex = index;
+
+        showImage();
+
+        lightbox.classList.add("active");
+
+      });
+
+    });
+
+    function showImage(){
+
+      lightboxImg.src = images[currentIndex].src;
+
+      counter.innerHTML =
+      `${currentIndex + 1} / ${images.length}`;
+
+    }
+
+    // NEXT
+
+    nextBtn.addEventListener("click", () => {
+
+      currentIndex++;
+
+      if(currentIndex >= images.length){
+        currentIndex = 0;
+      }
+
+      showImage();
+
+    });
+
+    // PREV
+
+    prevBtn.addEventListener("click", () => {
+
+      currentIndex--;
+
+      if(currentIndex < 0){
+        currentIndex = images.length - 1;
+      }
+
+      showImage();
+
+    });
+
+    // CLOSE
+
+    closeBtn.addEventListener("click", () => {
+
+      lightbox.classList.remove("active");
+
+      clearInterval(slideshow);
+
+    });
+
+    // KEYBOARD SUPPORT
+
+    document.addEventListener("keydown", e => {
+
+      if(!lightbox.classList.contains("active")) return;
+
+      if(e.key === "ArrowRight"){
+        nextBtn.click();
+      }
+
+      if(e.key === "ArrowLeft"){
+        prevBtn.click();
+      }
+
+      if(e.key === "Escape"){
+        closeBtn.click();
+      }
+
+    });
+
+    // DARK MODE
+
+    darkToggle.addEventListener("click", () => {
+
+      document.body.classList.toggle("dark");
+
+      if(document.body.classList.contains("dark")){
+        darkToggle.innerHTML = "☀ Light";
+      }
+      else{
+        darkToggle.innerHTML = "🌙 Dark";
+      }
+
+    });
+
+    // LIKE BUTTON
+
+    document.querySelectorAll(".like").forEach(btn => {
+
+      btn.addEventListener("click", e => {
+
+        e.stopPropagation();
+
+        btn.innerHTML =
+        btn.innerHTML === "❤️" ? "💖" : "❤️";
+
+      });
+
+    });
+
+    // AUTO SLIDESHOW
+
+    slideBtn.addEventListener("click", () => {
+
+      clearInterval(slideshow);
+
+      slideshow = setInterval(() => {
+
+        nextBtn.click();
+
+      },2000);
+
+    });
+
+  </script>
+
+</body>
+</html>
